@@ -1,3 +1,9 @@
+# Groupe 5
+# Thomas CAPODANO
+# Alexandre MARIE
+# Sébastien POLIN-MARCILLY
+# Chloé XAINTRAY
+
 playerFirst = True
 if playerFirst:
     player = 1
