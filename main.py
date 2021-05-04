@@ -1,18 +1,24 @@
-# board = {1: ' ', 2: ' ', 3: ' ', 4: ' ', 5: ' ', 6: ' ', 7: ' ', 8: ' ', 9: ' '}
-board = {1: ' ', 2: ' ', 3: ' '}
+import math
 
 tree = {}
 scores = {}
-player = 'O'
-computer = 'X'
+player = 1
+computer = -1
+current_node = (0, 0, 0, 0, 0, 0, 0, 0, 0)
 
+def indexToString(index):
+    if index == player:
+        return "0"
+    if index == computer:
+        return "X"
+    return " "
 
 def printBoard(board):
-    print(board[1] + ' |' + board[2] + ' |' + board[3])
+    print(indexToString(board[0]) + ' |' + indexToString(board[1]) + ' |' + indexToString(board[2]))
     print('________')
-    print(board[4] + ' |' + board[5] + ' |' + board[6])
+    print(indexToString(board[3]) + ' |' + indexToString(board[4]) + ' |' + indexToString(board[5]))
     print('________')
-    print(board[7] + ' |' + board[8] + ' |' + board[9])
+    print(indexToString(board[6]) + ' |' + indexToString(board[7]) + ' |' + indexToString(board[8]))
     print("\n")
 
 
@@ -96,36 +102,47 @@ def create_tree(tree, current_node):
 
 
 def computerPlays():
+    global current_node
     print("COMPUTER PLAYS :")
-
+    temp_node = None
+    s = math.inf
+    for child in tree[current_node]:
+        if scores[child] < s:
+            s = scores[child]
+            temp_node = child
+    current_node = temp_node
+    validate_turn()
 
 def freePosition(position):
-    if board[position] == ' ':
+    if current_node[position] == 0:
         return True
     else:
         return False
 
+def validate_turn():
+    printBoard(current_node)
+    if full_board(current_node):
+        exit()
 
-def savePosition(letter, position):
+    if part_finish(current_node) == 1:
+        print("Player wins")
+        exit()
+    elif part_finish(current_node) == -1:
+        print("Computer wins")
+        exit()
+
+
+def savePosition(mark, position):
+    global current_node
     if freePosition(position):
-        board[position] = letter
-        printBoard(board)
-
-        if full_board():
-            exit()
-        if part_finish():
-            if letter == 'X':
-                print("Computer wins")
-                exit()
-            else:
-                print("Player wins")
-                exit()
-
+        temp = list(current_node)
+        temp[position] = mark
+        current_node = tuple(temp)
+        validate_turn()
     else:
         print("Position already filled. Try again !")
         position = int(input("Please enter new position:  "))
-        savePosition(letter, position)
-
+        savePosition(mark, position)
 
 def playerPlays():
     print("PLAYER PLAYS :")
@@ -136,11 +153,12 @@ def playerPlays():
 
 create_tree(tree, (0, 0, 0, 0, 0, 0, 0, 0, 0))
 
-print(len(tree))
-print(scores)
+#print(len(tree))
+#print(scores)
 
-"""
-while not partFinish():
+
+
+while part_finish(current_node) == 0 or not full_board(current_node):
     playerPlays()
     computerPlays()
-"""
+
