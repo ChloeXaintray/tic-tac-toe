@@ -1,9 +1,14 @@
-import math
+playerFirst = True
+if playerFirst:
+    player = 1
+    computer = -1
+else:
+    computer = 1
+    player = -1
 
 tree = {}
 scores = {}
-player = 1
-computer = -1
+
 current_node = (0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 def indexToString(index):
@@ -86,7 +91,8 @@ def create_tree(tree, current_node):
     mark = 1
     if not sum(current_node) == 0:
         mark = -1
-    score = - mark
+
+    score = mark
 
     if current_node not in tree:
         tree[current_node] = get_children(current_node)
@@ -103,11 +109,15 @@ def create_tree(tree, current_node):
 
 def computerPlays():
     global current_node
-    print("COMPUTER PLAYS :")
+    print("COMPUTER PLAYS 'X':")
     temp_node = None
-    s = math.inf
+
+    s = 2 if playerFirst else -2
     for child in tree[current_node]:
-        if scores[child] < s:
+        if playerFirst and scores[child] < s:
+            s = scores[child]
+            temp_node = child
+        if not playerFirst and scores[child] > s:
             s = scores[child]
             temp_node = child
     current_node = temp_node
@@ -145,19 +155,17 @@ def savePosition(mark, position):
         savePosition(mark, position)
 
 def playerPlays():
-    print("PLAYER PLAYS :")
+    print("PLAYER PLAYS '0':")
     position = int(input("Enter the position:  "))
     savePosition(player, position)
 
 
 create_tree(tree, (0, 0, 0, 0, 0, 0, 0, 0, 0))
 
-#print(len(tree))
-#print(scores)
-
-
-
 while part_finish(current_node) == 0 or not full_board(current_node):
-    playerPlays()
-    computerPlays()
-
+    if playerFirst:
+        playerPlays()
+        computerPlays()
+    else:
+        computerPlays()
+        playerPlays()
