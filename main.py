@@ -2,6 +2,7 @@
 board = {1: ' ', 2: ' ', 3: ' '}
 
 tree = {}
+scores = {}
 player = 'O'
 computer = 'X'
 
@@ -15,60 +16,83 @@ def printBoard(board):
     print("\n")
 
 
-def partFinish(current_node):
+def part_finish(current_node):
     # Lignes
-    if (current_node[0] == current_node[1] and current_node[0] == current_node[2] and current_node[0] != 0):
-        return True
-    elif (current_node[3] == current_node[4] and current_node[3] == current_node[5] and current_node[3] != 0):
-        return True
-    elif (current_node[6] == current_node[7] and current_node[6] == current_node[8] and current_node[6] != 0):
-        return True
+    if current_node[0] == current_node[1] and current_node[0] == current_node[2] and current_node[0] != 0:
+        return current_node[0]
+    elif current_node[3] == current_node[4] and current_node[3] == current_node[5] and current_node[3] != 0:
+        return current_node[3]
+    elif current_node[6] == current_node[7] and current_node[6] == current_node[8] and current_node[6] != 0:
+        return current_node[6]
     # Colonnes
-    elif (current_node[0] == current_node[3] and current_node[0] == current_node[6] and current_node[0] != 0):
-        return True
-    elif (current_node[1] == current_node[4] and current_node[1] == current_node[7] and current_node[1] != 0):
-        return True
-    elif (current_node[2] == current_node[5] and current_node[2] == current_node[8] and current_node[2] != 0):
-        return True
+    elif current_node[0] == current_node[3] and current_node[0] == current_node[6] and current_node[0] != 0:
+        return current_node[0]
+    elif current_node[1] == current_node[4] and current_node[1] == current_node[7] and current_node[1] != 0:
+        return current_node[1]
+    elif current_node[2] == current_node[5] and current_node[2] == current_node[8] and current_node[2] != 0:
+        return current_node[2]
     # Diagonales
-    elif (current_node[0] == current_node[4] and current_node[0] == current_node[8] and current_node[0] != 0):
-        return True
-    elif (current_node[6] == current_node[4] and current_node[6] == current_node[2] and current_node[6] != 0):
-        return True
+    elif current_node[0] == current_node[4] and current_node[0] == current_node[8] and current_node[0] != 0:
+        return current_node[0]
+    elif current_node[6] == current_node[4] and current_node[6] == current_node[2] and current_node[6] != 0:
+        return current_node[6]
     else:
-        return False
+        return 0
 
 
-def fullBoard(current_node):
+def full_board(current_node):
     for mark in current_node:
         if mark == 0:
             return False
     return True
 
 
-def createTree(tree, current_node):
+def get_children(node):
+    children = []
 
-    if partFinish(current_node) or fullBoard(current_node):
-        tree[current_node] = []
+    mark = 1
+    if not sum(node) == 0:
+        mark = -1
+
+    for pos in range(9):
+
+        if node[pos] == 0:
+            new_current_node = list(node)
+            new_current_node[pos] = mark
+            new_current_node = tuple(new_current_node)
+
+            children.append(new_current_node)
+
+    return children
+
+
+def create_tree(tree, current_node):
+    if part_finish(current_node) != 0:
+        scores[current_node] = part_finish(current_node)
+        tree[current_node] = part_finish(current_node)
+        return
+
+    if full_board(current_node):
+        scores[current_node] = 0
+        tree[current_node] = 0
         return
 
     mark = 1
     if not sum(current_node) == 0:
         mark = -1
+    score = - mark
 
-    for pos in range(len(current_node)):
+    if current_node not in tree:
+        tree[current_node] = get_children(current_node)
 
-        if current_node[pos] == 0:
+    for child in tree[current_node]:
+        create_tree(tree, child)
+        if mark == 1:
+            score = max(score, scores[child])
+        else:
+            score = min(score, scores[child])
 
-            new_current_node = list(current_node)
-            new_current_node[pos] = mark
-            new_current_node = tuple(new_current_node)
-
-            if current_node not in tree.keys():
-                tree[current_node] = [new_current_node]
-            else:
-                tree[current_node].append(new_current_node)
-            createTree(tree, new_current_node)
+    scores[current_node] = score
 
 
 def computerPlays():
@@ -87,9 +111,9 @@ def savePosition(letter, position):
         board[position] = letter
         printBoard(board)
 
-        if fullBoard():
+        if full_board():
             exit()
-        if partFinish():
+        if part_finish():
             if letter == 'X':
                 print("Computer wins")
                 exit()
@@ -109,9 +133,11 @@ def playerPlays():
     savePosition(player, position)
 
 
-createTree(tree, (0, 0, 0, 0, 0, 0, 0, 0, 0))
+
+create_tree(tree, (0, 0, 0, 0, 0, 0, 0, 0, 0))
 
 print(len(tree))
+print(scores)
 
 """
 while not partFinish():
