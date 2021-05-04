@@ -150,7 +150,6 @@ def playerPlays():
     savePosition(player, position)
 
 
-
 create_tree(tree, (0, 0, 0, 0, 0, 0, 0, 0, 0))
 
 #print(len(tree))
